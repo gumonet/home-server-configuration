@@ -145,3 +145,12 @@ services:
       - TORRENT_PLUGIN=transmission
       - FG_WEBUI_PASSWD=@Gumonet01 # la puedes cambiar por la que quieras
     restart: unless-stopped
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - $PWD/prometheus:/etc/prometheus
