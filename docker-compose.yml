@@ -1,0 +1,147 @@
+version: '3.8'
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: always
+    ports:
+      - 8000:8000
+      - 9443:9443
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    command: --http-enabled
+  proxy-manager:
+    container_name: proxy-manager
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+  heimdall:
+    container_name: heimdall
+    image: linuxserver/heimdall
+    ports:
+      - 8082:80
+      - 8443:443
+    volumes:
+      - ./heimdall:/config
+    environment:
+      - PGID=1000
+      - PUID=1000
+
+  adguard-home:
+    container_name: adguard-home
+    image: adguard/adguardhome
+    restart: unless-stopped
+    ports:
+      - '53:53/tcp'
+      - '53:53/udp'
+      - '84:80/tcp'
+      - '444:443'
+      - '3000:3000/tcp'
+      - '853:853/tcp'
+      - '784:784/udp'
+      - '853:853/udp'
+      - '8853:8853/udp'
+      - '5443:5443/tcp'
+      - '5443:5443/udp'
+    volumes:
+      - ./adguard-home/work/:/opt/adguardhome/work
+      - ./adguard-home/conf/:/opt/adguardhome/conf
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    # if you are running as root then set it to 0
+    # else find the right id with the id -u command
+    user: '1000:1000'
+    #ports:
+     # - '3000:3000'
+    # adding the mount volume point which we create earlier
+    volumes:
+      - '$PWD/grafana-data:/var/lib/grafana'
+
+  uptime:
+    image: louislam/uptime-kuma
+    container_name: uptime_kuma
+    restart: unless-stopped
+    #ports:
+      #- '3001:3001'
+    volumes:
+      - '$PWD/uptime-kuma:/app/data'
+
+  samba:
+    container_name: samba
+    image: dperson/samba # no hay tag con versiones, solo latest
+    restart: always
+    command: '-u "gumonet;Gumonet01" -s "media;/media;yes;no" -s "downloads;/downloads;yes;no" -s "Public;/Public;yes;no" '
+    stdin_open: true
+    tty: true
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      - ${MEDIA}:/media
+      - ${STORAGE}/torrents:/downloads
+      - ${STORAGE}/Public:/Public
+    ports:
+      - 139:139
+      - 445:445
+
+  plex:
+    container_name: plex
+    image: jaymoulin/plex:1.30.1.6562
+    expose:
+      - 32400
+      - 33400
+    # Descomentar si NO usas network_mode: "host"
+    # ports:
+    #  - 32400:32400
+    #  - 33400:33400
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      - ${STORAGE}/Plex Media Server:/root/Library/Application Support/Plex Media Server
+      - ${MEDIA}:/media
+      - ${STORAGE}/tmp:/tmp
+    restart: unless-stopped
+    network_mode: "host" # Solo funciona en Linux
+    hostname: plex
+
+  transmission:
+    container_name: transmission
+    image: jaymoulin/transmission:3.00-1.6.1
+    command: transmission-daemon -f -g /config
+    volumes:
+      - ./transmission:/config
+      - ${STORAGE}/torrents:/downloads
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    expose:
+      - 9091
+    restart: unless-stopped
+
+  flexget:
+    container_name: flexget
+    image: wiserain/flexget:3.5
+    volumes:
+      - ./flexget:/config
+      - ./flexget/custom-cont-init.d:/custom-cont-init.d
+      - ${STORAGE}/torrents:/downloads
+      - ${MEDIA}:/storage
+    ports:
+      - 5050:5050
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TORRENT_PLUGIN=transmission
+      - FG_WEBUI_PASSWD=@Gumonet01 # la puedes cambiar por la que quieras
+    restart: unless-stopped
