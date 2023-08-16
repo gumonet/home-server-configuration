@@ -12,6 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
     command: --http-enabled
+
   proxy-manager:
     container_name: proxy-manager
     image: 'jc21/nginx-proxy-manager:latest'
@@ -23,6 +24,11 @@ services:
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
+
   heimdall:
     container_name: heimdall
     image: linuxserver/heimdall
@@ -34,6 +40,10 @@ services:
     environment:
       - PGID=1000
       - PUID=1000
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   adguard-home:
     container_name: adguard-home
@@ -54,6 +64,10 @@ services:
     volumes:
       - ./adguard-home/work/:/opt/adguardhome/work
       - ./adguard-home/conf/:/opt/adguardhome/conf
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   grafana:
     image: grafana/grafana-enterprise
@@ -76,6 +90,10 @@ services:
       #- '3001:3001'
     volumes:
       - '$PWD/uptime-kuma:/app/data'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   samba:
     container_name: samba
@@ -93,6 +111,10 @@ services:
     ports:
       - 139:139
       - 445:445
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   plex:
     container_name: plex
@@ -113,6 +135,10 @@ services:
     restart: unless-stopped
     network_mode: "host" # Solo funciona en Linux
     hostname: plex
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   transmission:
     container_name: transmission
@@ -128,6 +154,10 @@ services:
     expose:
       - 9091
     restart: unless-stopped
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   flexget:
     container_name: flexget
@@ -145,6 +175,10 @@ services:
       - TORRENT_PLUGIN=transmission
       - FG_WEBUI_PASSWD=@Gumonet01 # la puedes cambiar por la que quieras
     restart: unless-stopped
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 192.16.0.20:24224
 
   prometheus:
     container_name: prometheus
@@ -181,3 +215,34 @@ services:
      # - "9100:9100"
     expose:
       - 9100
+
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:latest
+    container_name: fluent-bit
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    expose:
+      - "3100"
+    ports:
+      - "3200:3100"
+
+    # for testing purposes only, disable in production
+#  app:
+#    image: thakkaryash94/express-example:latest
+#    container_name: express-app
+#    ports:
+#      - "4000:3000"
+#    logging:
+#      driver: fluentd
+#      options:
+#        fluentd-address: 192.16.0.20:24224
+
