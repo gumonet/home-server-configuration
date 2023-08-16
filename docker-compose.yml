@@ -167,3 +167,17 @@ services:
       - /dev/disk/:/dev/disk:ro
     ports:
       - "8080:8080"
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    #ports:
+     # - "9100:9100"
+    expose:
+      - 9100

@@ -21,4 +21,13 @@ scrape_configs:
     static_configs:
       - targets: [ 'cadvisor:8080' ]
 
-#save this file
+  - job_name: 'node_exporter_client'
+    scrape_interval: 5s
+    #scheme: https
+    #tls_config:
+    #  ca_file: /etc/prometheus/node_exporter.crt
+    #basic_auth:
+     # username: prom
+      #password: prom
+    static_configs:
+      - targets: [ 'node_exporter:9100' ]
