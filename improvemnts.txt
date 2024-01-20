@@ -1,1 +1,5 @@
-https://www.youtube.com/watch?v=pZArt1yEw_o
+
+
+Disable ubuntu dns service to can use adguard home
+sudo systemctl stop systemd-resolved.service
+sudo systemctl disable systemd-resolved.service

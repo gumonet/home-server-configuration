@@ -5,7 +5,7 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-    monitor: 'codelab-monitor'
+    monitor: 'monitor'
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
@@ -21,13 +21,13 @@ scrape_configs:
     static_configs:
       - targets: [ 'cadvisor:8080' ]
 
-  - job_name: 'node_exporter_client'
-    scrape_interval: 5s
+  #- job_name: 'node_exporter_client'
+  #  scrape_interval: 5s
     #scheme: https
     #tls_config:
     #  ca_file: /etc/prometheus/node_exporter.crt
     #basic_auth:
      # username: prom
       #password: prom
-    static_configs:
-      - targets: [ 'node_exporter:9100' ]
+   # static_configs:
+    #  - targets: [ 'node_exporter:9100' ]
