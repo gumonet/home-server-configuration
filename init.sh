@@ -8,3 +8,6 @@ mkdir adguard-home/work
 mkdir adguard-home/conf
 mkdir grafana-data
 mkdir uptime-kuma
+mkidr next-cloud
+mkdir next-cloud/database
+mkdir next-cloud/data

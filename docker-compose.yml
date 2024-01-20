@@ -153,7 +153,6 @@ services:
     ports:
       - "3200:3100"
 
-    # for testing purposes only, disable in production
 #  app:
 #    image: thakkaryash94/express-example:latest
 #    container_name: express-app
