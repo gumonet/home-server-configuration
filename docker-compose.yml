@@ -8,7 +8,7 @@ services:
     ports:
       - 8000:8000
       - 9443:9443
-      - 9000:9000
+      - 9001:9000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
@@ -59,8 +59,8 @@ services:
     # if you are running as root then set it to 0
     # else find the right id with the id -u command
     user: '1000:1000'
-    #ports:
-     # - '3000:3000'
+    ports:
+      - '3000:3000'
     # adding the mount volume point which we create earlier
     volumes:
       - '$PWD/grafana-data:/var/lib/grafana'
@@ -134,32 +134,39 @@ services:
   #  expose:
   #    - 9100
 
-  fluent-bit:
-    image: grafana/fluent-bit-plugin-loki:latest
-    container_name: fluent-bit
-    environment:
-      - LOKI_URL=http://loki:3100/loki/api/v1/push
-    volumes:
-      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
-    ports:
-      - "24224:24224"
-      - "24224:24224/udp"
+#  fluent-bit:
+#    image: grafana/fluent-bit-plugin-loki:latest
+#    container_name: fluent-bit
+#    environment:
+#      - LOKI_URL=http://loki:3100/loki/api/v1/push
+#    volumes:
+#      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+#    ports:
+#      - "24224:24224"
+#      - "24224:24224/udp"
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:2.4.0
     container_name: loki
-    expose:
-      - "3100"
+    restart: unless-stopped
     ports:
       - "3200:3100"
+    volumes:
+      - ./loki:/etc/loki
+    command: -config.file=/etc/loki/loki-config.yml
 
-#  app:
-#    image: thakkaryash94/express-example:latest
-#    container_name: express-app
-#    ports:
-#      - "4000:3000"
-#    logging:
-#      driver: fluentd
-#      options:
-#        fluentd-address: 192.16.0.20:24224
+  promtail:
+    image: grafana/promtail:2.4.0
+    volumes:
+      - /var/log:/var/log
+      - ./promtail:/etc/promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/promtail-config.yml
 
+  app:
+    image: thakkaryash94/express-example:latest
+    container_name: express-app
+    ports:
+      - "4000:3000"
+    volumes:
+      - ./docker-logs/app:/var/log
