@@ -1,5 +1,4 @@
 services:
-
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:latest
@@ -17,12 +16,12 @@ services:
 
   proxy-manager:
     container_name: proxy-manager
-    image: 'jc21/nginx-proxy-manager:latest'
+    image: "jc21/nginx-proxy-manager:latest"
     restart: unless-stopped
     ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
+      - "80:80"
+      - "81:81"
+      - "443:443"
     volumes:
       - proxy-manager-data:/data
       - proxy-manager-letsencrypt:/etc/letsencrypt
@@ -34,16 +33,16 @@ services:
     image: adguard/adguardhome
     restart: unless-stopped
     ports:
-      - '53:53/tcp'
-      - '53:53/udp'
-      - '85:85/tcp'
-      - '853:853/tcp'
-      - '784:784/udp'
-      - '853:853/udp'
-      - '8853:8853/udp'
-      - '5443:5443/tcp'
-      - '5443:5443/udp'
-      - '3000:3000'
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "85:85/tcp"
+      - "853:853/tcp"
+      - "784:784/udp"
+      - "853:853/udp"
+      - "8853:8853/udp"
+      - "5443:5443/tcp"
+      - "5443:5443/udp"
+      - "3000:3000"
     volumes:
       - adguard-home:/opt/adguardhome/
     networks:
@@ -67,8 +66,6 @@ services:
     networks:
       - home-lab
 
-
-
   registry:
     image: registry:2
     container_name: registry
@@ -76,7 +73,22 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./registry:/var/lib/registry
+      - registry:/var/lib/registry
+    networks:
+      - home-lab
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000" # API S3-compatible
+      - "9002:9001" # Web UI
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER} # Cambia esto en producción
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD} # Cambia esto en producción
+    command: server --console-address ":9001" /data
+    restart: unless-stopped
     networks:
       - home-lab
 
@@ -84,8 +96,9 @@ networks:
   home-lab:
     driver: bridge
 volumes:
-    portainer_data:
-    proxy-manager-data:
-    proxy-manager-letsencrypt:
-    adguard-home:
-    registry:
+  portainer_data:
+  proxy-manager-data:
+  proxy-manager-letsencrypt:
+  adguard-home:
+  registry:
+  minio-data:
