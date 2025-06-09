@@ -12,7 +12,7 @@ services:
       - portainer_data:/data
     command: --http-enabled
     networks:
-      - home-lab
+      - homelab
 
   proxy-manager:
     container_name: proxy-manager
@@ -26,7 +26,7 @@ services:
       - proxy-manager-data:/data
       - proxy-manager-letsencrypt:/etc/letsencrypt
     networks:
-      - home-lab
+      - homelab
 
   adguard-home:
     container_name: adguard-home
@@ -46,7 +46,7 @@ services:
     volumes:
       - adguard-home:/opt/adguardhome/
     networks:
-      - home-lab
+      - homelab
 
   samba:
     container_name: samba
@@ -64,7 +64,7 @@ services:
       - 139:139
       - 445:445
     networks:
-      - home-lab
+      - homelab
 
   registry:
     image: registry:2
@@ -75,7 +75,7 @@ services:
     volumes:
       - registry:/var/lib/registry
     networks:
-      - home-lab
+      - homelab
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -90,11 +90,60 @@ services:
     command: server --console-address ":9001" /data
     restart: unless-stopped
     networks:
-      - home-lab
+      - homelab
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER} # Cambia esto en producción
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Cambia esto en producción
+      POSTGRES_DB: ${POSTGRES_DB} # Cambia esto en producción
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - homelab
+    ports:
+      - "5432:5432"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: postgres
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: admin
+      N8N_BASIC_AUTH_PASSWORD: adminpass
+
+      N8N_HOST: n8n.home
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://n8n.home:5678
+      N8N_SECURE_COOKIE: false
+
+      TZ: America/Mexico_City
+
+    depends_on:
+      - postgres
+    networks:
+      - homelab
+    volumes:
+      - n8n_data:/home/node/.n8n
 
 networks:
-  home-lab:
-    driver: bridge
+  homelab:
+    external: true
+
 volumes:
   portainer_data:
   proxy-manager-data:
@@ -102,3 +151,5 @@ volumes:
   adguard-home:
   registry:
   minio-data:
+  pgdata:
+  n8n_data:
