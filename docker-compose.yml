@@ -65,17 +65,46 @@ services:
       - 445:445
     networks:
       - homelab
+    profiles:
+      - storage-tools
 
   registry:
-    image: registry:2
+    image: registry:latest
     container_name: registry
     restart: unless-stopped
+    environment:
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin=["*"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods=["HEAD,GET,OPTIONS,DELETE"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials=["true"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers=["Authorization,Accept,Cache-Control"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers=["Docker-Content-Digest"]
+      - REGISTRY_STORAGE_DELETE_ENABLED=["true"]
     ports:
       - "5000:5000"
     volumes:
       - registry:/var/lib/registry
     networks:
       - homelab
+
+  registry-ui:
+    image: joxit/docker-registry-ui:latest
+    ports:
+      - "8088:80"
+    container_name: registry-ui
+    environment:
+      - REGISTRY_TITLE=Local Docker Registry
+      - REGISTRY_URL=http://192.16.0.20:5000
+      - SINGLE_REGISTRY=true
+      - DELETE_IMAGES=true
+      - SHOW_CONTENT_DIGEST=true
+      - SHOW_CATALOG_NB_TAGS=true
+      - CATALOG_MAX_BRANCHES=1
+      - CATALOG_MIN_BRANCHES=1
+      - TAGLIST_PAGE_SIZE=100
+      - REGISTRY_SECURED=false
+      - CATALOG_ELEMENTS_LIMIT=1000
+    depends_on:
+      - registry
   minio:
     image: minio/minio:latest
     container_name: minio
