@@ -52,21 +52,21 @@ services:
     container_name: samba
     image: dperson/samba # no hay tag con versiones, solo latest
     restart: unless-stopped
-    command: '-u "gumonet;Gumonet01" -s "backup;/backup;yes;no" -s "data;/data;yes;no" '
+    command: '-u "gumonet;Gumonet01" -s "media;/media;yes;no" '
+    #command: '-u "gumonet;Gumonet01" -s "backup;/backup;yes;no" -s "data;/data;yes;no" '
     stdin_open: true
     tty: true
     environment:
       - TZ=America/Mexico_City
     volumes:
-      - ~/Backup:/backup
-      - ~/Data:/data
+      #- ~/Backup:/backup
+      #- ~/Data:/data
+      - /home/gumonet/Media:/media
     ports:
       - 139:139
       - 445:445
     networks:
       - homelab
-    profiles:
-      - storage-tools
 
   registry:
     image: registry:latest
@@ -184,6 +184,65 @@ services:
     networks:
       - homelab
 
+  plex:
+    container_name: plex
+    image: jaymoulin/plex:latest
+    expose:
+      - 32400
+      - 33400
+    # Descomentar si NO usas network_mode: "host"
+    # ports:
+    #  - 32400:32400
+    #  - 33400:33400
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      - ${STORAGE}/Plex Media Server:/root/Library/Application Support/Plex Media Server
+      - ${MEDIA}:/media
+      - ${STORAGE}/tmp:/tmp
+    restart: unless-stopped
+    network_mode: "host" # Solo funciona en Linux
+    hostname: plex
+
+  transmission:
+    container_name: transmission
+    image: jaymoulin/transmission:3.00-1.6.1
+    command: transmission-daemon -f -g /config
+    volumes:
+      - ./transmission/settings.json:/config/settings.json
+      - ${STORAGE}/torrents:/downloads
+      - transmission:/config
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    expose:
+      - 9091
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  flexget:
+    container_name: flexget
+    image: wiserain/flexget:3.5
+    volumes:
+      - ./flexget/config.yaml:/config/config.yaml
+      - ./flexget/config-trakt.yaml:/config/config-trakt.yaml
+      - ./flexget/custom-cont-init.d:/custom-cont-init.d
+      - ${STORAGE}/torrents:/downloads
+      - ${MEDIA}:/storage
+      - flexget:/config
+    ports:
+      - 5050:5050
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TORRENT_PLUGIN=transmission
+      - FG_WEBUI_PASSWD=@Gumonet01 # la puedes cambiar por la que quieras
+    restart: unless-stopped
+    networks:
+      - homelab
+
 networks:
   homelab:
     external: true
@@ -198,3 +257,5 @@ volumes:
   pgdata:
   n8n_data:
   gitea:
+  flexget:
+  transmission:
