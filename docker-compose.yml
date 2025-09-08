@@ -184,26 +184,6 @@ services:
     networks:
       - homelab
 
-  plex:
-    container_name: plex
-    image: jaymoulin/plex:latest
-    expose:
-      - 32400
-      - 33400
-    # Descomentar si NO usas network_mode: "host"
-    # ports:
-    #  - 32400:32400
-    #  - 33400:33400
-    environment:
-      - TZ=America/Mexico_City
-    volumes:
-      - ${STORAGE}/Plex Media Server:/root/Library/Application Support/Plex Media Server
-      - ${MEDIA}:/media
-      - ${STORAGE}/tmp:/tmp
-    restart: unless-stopped
-    network_mode: "host" # Solo funciona en Linux
-    hostname: plex
-
   transmission:
     container_name: transmission
     image: jaymoulin/transmission:3.00-1.6.1
