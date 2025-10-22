@@ -197,7 +197,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - gitea-runner-data:/data
     environment:
-      - GITEA_INSTANCE_URL=http://gitea:3000
+      - GITEA_INSTANCE_URL=http://192.16.0.20:3002
       - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
     networks:
       - homelab
