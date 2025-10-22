@@ -91,6 +91,7 @@ services:
     ports:
       - "8088:80"
     container_name: registry-ui
+    restart: unless-stopped
     environment:
       - REGISTRY_TITLE=Local Docker Registry
       - REGISTRY_URL=http://192.16.0.20:5000
