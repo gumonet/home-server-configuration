@@ -79,19 +79,25 @@ Este proyecto contiene una configuración lista para desplegar múltiples servic
 - **Descripción:** Servidor Git ligero y autohospedado, similar a GitHub.
 - **Puertos:** 3002 (web), 2222 (SSH)
 
-### 11. Plex
+### 11. Gitea Runner
+
+- **Imagen:** `gitea/gitea-runner`
+- **Descripción:** Servicio para ejecutar tareas CI/CD definidas en Gitea.
+- **Volúmenes:** Monta un volumen para persistir datos del runner.
+
+### 12. Plex
 
 - **Imagen:** `jaymoulin/plex`
 - **Descripción:** Servidor multimedia para organizar y transmitir películas, series y música en la red local.
 - **Puertos:** 32400, 33400 (usando network_mode: host)
 
-### 12. Transmission
+### 13. Transmission
 
 - **Imagen:** `jaymoulin/transmission`
 - **Descripción:** Cliente BitTorrent ligero y eficiente, con interfaz web.
 - **Puertos:** 9091 (web), 51413 (p2p)
 
-### 13. FlexGet
+### 14. FlexGet
 
 - **Imagen:** `wiserain/flexget`
 - **Descripción:** Automatizador de descargas (torrents, RSS, etc) altamente configurable.
