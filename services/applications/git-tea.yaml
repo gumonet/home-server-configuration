@@ -15,6 +15,11 @@ services:
       - "2222:22" # SSH Git
     networks:
       - homelab
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   gitea-runner:
     image: gitea/act_runner:latest
@@ -30,6 +35,11 @@ services:
       - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
     networks:
       - homelab
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   gitea:

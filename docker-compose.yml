@@ -7,6 +7,8 @@ include:
   - services/applications/adguard-home.yaml
   - services/applications/samba.yaml
   - services/monitoring/portainer.yaml
+  - services/monitoring/cadvisor.yaml
+  - services/home-assistant/docker-compose.yaml
 networks:
   homelab:
     external: true

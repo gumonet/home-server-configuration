@@ -1,0 +1,22 @@
+services:
+  fluent-bit:
+    container_name: fluent-bit
+    image: grafana/fluent-bit-plugin-loki:latest
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./services/fluent-bit/config.conf:/fluent-bit/etc/fluent-bit.conf
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    restart: unless-stopped
+    # logging:
+    #   driver: fluentd
+    #   options:
+    #     fluentd-address: localhost:24224
+    #     tag: docker.{{.Name}}
+    #     fluentd-async: "true"
+    depends_on:
+      - loki
+    networks:
+      - homelab

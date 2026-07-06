@@ -18,3 +18,8 @@ services:
       - 445:445
     networks:
       - homelab
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -31,6 +31,11 @@ services:
       - homelab
     volumes:
       - n8n_data:/home/node/.n8n
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   n8n_data:

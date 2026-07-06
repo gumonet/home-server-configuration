@@ -18,6 +18,11 @@ services:
       - adguard-home:/opt/adguardhome/
     networks:
       - homelab
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   adguard-home:
