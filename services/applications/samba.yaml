@@ -1,0 +1,20 @@
+services:
+  samba:
+    container_name: samba
+    image: dperson/samba # no hay tag con versiones, solo latest
+    restart: unless-stopped
+    command: '-u "gumonet;Gumonet01" -s "media;/media;yes;no" '
+    #command: '-u "gumonet;Gumonet01" -s "backup;/backup;yes;no" -s "data;/data;yes;no" '
+    stdin_open: true
+    tty: true
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      #- ~/Backup:/backup
+      #- ~/Data:/data
+      - /home/gumonet/Media:/media
+    ports:
+      - 139:139
+      - 445:445
+    networks:
+      - homelab
