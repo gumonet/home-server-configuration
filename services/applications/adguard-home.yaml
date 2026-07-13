@@ -1,7 +1,7 @@
 services:
   adguard-home-main:
     container_name: adguard-home-main
-    image: adguard/adguardhome
+    image: adguard/adguardhome:latest
     restart: unless-stopped
     ports:
       - "53:53/tcp"
@@ -14,7 +14,8 @@ services:
       - "5443:5443/tcp"
       - "5443:5443/udp"
     volumes:
-      - adguard-home:/opt/adguardhome/
+      - adguard-work:/opt/adguardhome/work
+      - adguard-conf:/opt/adguardhome/conf
     networks:
       - homelab
     logging:
@@ -24,4 +25,5 @@ services:
         max-file: "3"
 
 volumes:
-  adguard-home:
+  adguard-work:
+  adguard-conf:
